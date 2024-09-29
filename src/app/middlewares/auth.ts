@@ -9,7 +9,7 @@ import config from '../config';
 import { TUserRole } from '../modules/Auth/auth.interface';
 import { User } from '../modules/user/user.model';
 
-const authAdmin = (...requiredRoles: TUserRole[]) => {
+const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.header('Authorization');
 
@@ -55,4 +55,4 @@ const authAdmin = (...requiredRoles: TUserRole[]) => {
   });
 };
 
-export default authAdmin;
+export default auth;
