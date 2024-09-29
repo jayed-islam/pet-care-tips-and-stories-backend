@@ -29,6 +29,10 @@ const PostSchema = new Schema<IPost>({
     type: Boolean,
     default: false,
   },
+  isPublished: {
+    type: Boolean,
+    default: true,
+  },
   upvotes: [
     {
       type: Schema.Types.ObjectId,

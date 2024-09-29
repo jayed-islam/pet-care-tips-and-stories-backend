@@ -49,7 +49,7 @@ const getAllPosts = async (
     limit = 10,
   } = filterOptions;
 
-  const query: any = { isDeleted: false };
+  const query: any = { isDeleted: false, isPublished: true };
 
   // Apply filtering by category if provided
   if (category) {
@@ -112,7 +112,7 @@ const getUserPosts = async (
     limit = 10,
   } = filterOptions;
 
-  const query: any = { isDeleted: false, author: userId }; // Filter by userId and isDeleted
+  const query: any = { isDeleted: false, isPublished: true, author: userId }; // Filter by userId and isDeleted
 
   // Apply filtering by category if provided
   if (category) {
