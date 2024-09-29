@@ -6,15 +6,6 @@ export enum PostCategory {
   STORY = 'STORY',
 }
 
-export enum ReactionType {
-  LIKE = 'LIKE',
-  LOVE = 'LOVE',
-  HAHA = 'HAHA',
-  WOW = 'WOW',
-  SAD = 'SAD',
-  ANGRY = 'ANGRY',
-}
-
 export interface IPost extends Document {
   author: Types.ObjectId;
   title: string;

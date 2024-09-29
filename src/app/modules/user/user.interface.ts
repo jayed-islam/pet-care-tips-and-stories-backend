@@ -13,8 +13,9 @@ export interface IUser {
   bio?: string;
   role: 'admin' | 'user';
   status: 'active' | 'diactive' | 'blocked';
-  followers?: Types.ObjectId[];
-  following?: Types.ObjectId[];
+  followers: Types.ObjectId[];
+  following: Types.ObjectId[];
+  purchasedPosts: Types.ObjectId[];
   isDeleted: boolean;
   isVerified: boolean;
   passwordChangedAt?: Date;

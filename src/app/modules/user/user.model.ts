@@ -43,6 +43,11 @@ const userSchema = new Schema<IUser, UserModel>(
       type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
+    purchasedPosts: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Post',
+      default: [],
+    },
     profilePicture: {
       type: String,
     },
