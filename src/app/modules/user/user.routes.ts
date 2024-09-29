@@ -31,4 +31,10 @@ router.get(
   UserController.getCurrentUser,
 );
 
+router.post(
+  '/toggle-follow',
+  authAdmin(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  UserController.toggleFollowUser,
+);
+
 export const UserRoutes = router;

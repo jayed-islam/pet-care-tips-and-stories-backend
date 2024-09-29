@@ -16,18 +16,6 @@ const registerUser = catchAsync(async (req, res) => {
   });
 });
 
-const registerAdmin = catchAsync(async (req, res) => {
-  const userData = req.body;
-  const result = await AuthServices.registerAdminIntoDB(userData);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User created succesfully!',
-    data: result,
-  });
-});
-
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUserFromDB(req.body);
   const { refreshToken, accessToken, user } = result;
@@ -95,21 +83,6 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
-const verifyEmail = catchAsync(async (req, res) => {
-  const { id, token } = req.query;
-  // if (!token) {
-  //   return res.status(400).json({ message: 'Verification token is required' });
-  // }
-  const result = await AuthServices.verifyEmail(token as string, id as string);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Email verified successfully',
-    data: result,
-  });
-});
-
 export const AuthControllers = {
   loginUser,
   changePassword,
@@ -117,6 +90,4 @@ export const AuthControllers = {
   forgetPassword,
   resetPassword,
   registerUser,
-  registerAdmin,
-  verifyEmail,
 };

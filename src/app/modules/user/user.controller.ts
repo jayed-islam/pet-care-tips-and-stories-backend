@@ -6,7 +6,7 @@ import { UserService } from './user.service'; // Assuming UserService is correct
 const getCurrentUser = catchAsync(async (req, res) => {
   const userId = req.user._id;
 
-  const user = await UserService.getUserByIdFromDB(userId);
+  const user = await UserService.getUserProfile(userId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -48,8 +48,27 @@ const updateUserData = catchAsync(async (req, res) => {
   });
 });
 
+// Toggle follow/unfollow user controller
+const toggleFollowUser = catchAsync(async (req, res) => {
+  const { targetUserId } = req.body;
+  const currentUserId = req.user.id;
+
+  const result = await UserService.toggleFollowUser(
+    currentUserId,
+    targetUserId,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
+    data: null,
+  });
+});
+
 export const UserController = {
   getCurrentUser,
   getAllUsers,
   updateUserData,
+  toggleFollowUser,
 };

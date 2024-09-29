@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { TAuthAdmin, TAuthUser } from '../user/user.constants';
+import { TAuthUser } from '../user/user.constants';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import config from '../../config';
@@ -18,103 +18,7 @@ const registerUserIntoDB = async ({ email, password }: TAuthUser) => {
   const newUser = new User({ email, password });
   const result = await newUser.save();
 
-  // const jwtPayload = {
-  //   _id: result._id,
-  //   email: result.email,
-  //   role: result.role,
-  // };
-
-  // const verificationToken = createToken(
-  //   jwtPayload,
-  //   config.jwt_verification_secret as string,
-  //   '10m',
-  // );
-
-  // const verificationLink = `${config.verify_user_ui_link}?id=${result._id}&token=${verificationToken} `;
-
-  // // Send verification email
-  // await sendEmail(
-  //   newUser.email,
-  //   `Please verify your email by clicking on the following link: ${verificationLink}`,
-  //   'Verify your email!',
-  // );
-
   return result;
-};
-
-const registerAdminIntoDB = async ({ email, password, key }: TAuthAdmin) => {
-  if (key !== config.admin_register_key) {
-    throw new AppError(httpStatus.FORBIDDEN, 'Unautorized');
-  }
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'User already exists');
-  }
-
-  const newUser = new User({ email, password, role: 'admin' });
-  const result = await newUser.save();
-  return result;
-};
-
-// const verifyEmail = async (token: string, id: string) => {
-//   let decoded: JwtPayload;
-//   try {
-//     decoded = jwt.verify(
-//       token,
-//       config.jwt_verification_secret as string,
-//     ) as JwtPayload;
-//   } catch (error) {
-//     throw new AppError(
-//       httpStatus.UNAUTHORIZED,
-//       'Invalid or expired verification token',
-//     );
-//   }
-
-//   const user = await User.findOne({ email: decoded.email });
-//   if (!user) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
-//   }
-
-//   user.isVerified = true;
-//   await user.save();
-
-//   return user;
-// };
-
-const verifyEmail = async (token: string, id: string) => {
-  if (!token || !id) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token and ID are required');
-  }
-
-  let decoded: JwtPayload;
-  try {
-    decoded = jwt.verify(
-      token,
-      config.jwt_verification_secret as string,
-    ) as JwtPayload;
-  } catch (error) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      'Invalid or expired verification token',
-    );
-  }
-
-  const user = await User.findById(id);
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
-  }
-
-  if (user.email !== decoded.email) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      'Token does not match the provided user ID',
-    );
-  }
-
-  user.isVerified = true;
-  await user.save();
-
-  return user;
 };
 
 const loginUserFromDB = async ({ email, password }: TAuthUser) => {
@@ -151,12 +55,6 @@ const loginUserFromDB = async ({ email, password }: TAuthUser) => {
     email: user.email,
     role: user.role,
   };
-
-  // jwtPayload: {
-  //   email: string;
-  //   role: string;
-  //   id: string;
-  // },
 
   const accessToken = createToken(
     jwtPayload,
@@ -379,6 +277,4 @@ export const AuthServices = {
   refreshToken,
   resetPassword,
   forgetPassword,
-  registerAdminIntoDB,
-  verifyEmail,
 };
