@@ -25,6 +25,10 @@ const PostSchema = new Schema<IPost>({
     type: Boolean,
     default: false,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
   upvotes: [
     {
       type: Schema.Types.ObjectId,

@@ -13,12 +13,15 @@ export interface IUser {
   bio?: string;
   role: 'admin' | 'user';
   status: 'active' | 'diactive' | 'blocked';
+  userType: 'basic' | 'premium';
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
-  purchasedPosts: Types.ObjectId[];
   isDeleted: boolean;
   isVerified: boolean;
   passwordChangedAt?: Date;
+  premiumStartDate?: Date; // Date when premium started
+  premiumEndDate?: Date; // Date when premium will expire
+  subscriptionPlan?: 'weekly' | 'monthly';
   createdAt?: Date;
   updatedAt?: Date;
 }

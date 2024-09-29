@@ -23,6 +23,11 @@ const userSchema = new Schema<IUser, UserModel>(
       enum: [USER_ROLE.admin, USER_ROLE.user],
       default: USER_ROLE.user,
     },
+    userType: {
+      type: String,
+      enum: ['basic', 'premium'],
+      default: 'basic',
+    },
     name: {
       type: String,
     },
@@ -43,11 +48,6 @@ const userSchema = new Schema<IUser, UserModel>(
       type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
-    purchasedPosts: {
-      type: [Schema.Types.ObjectId],
-      ref: 'Post',
-      default: [],
-    },
     profilePicture: {
       type: String,
     },
@@ -60,6 +60,12 @@ const userSchema = new Schema<IUser, UserModel>(
       default: false,
     },
     passwordChangedAt: {
+      type: Date,
+    },
+    premiumStartDate: {
+      type: Date,
+    },
+    premiumEndDate: {
       type: Date,
     },
   },

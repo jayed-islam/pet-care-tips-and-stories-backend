@@ -15,6 +15,7 @@ export interface IPost extends Document {
   upvotes: Types.ObjectId[];
   downvotes: Types.ObjectId[];
   comments: Types.ObjectId[];
+  isDeleted: boolean;
   imageUrls: string[];
   createdAt: Date;
   updatedAt: Date;
