@@ -7,19 +7,6 @@ const loginValidationSchema = z.object({
   }),
 });
 
-const adminRegisterValidationSchema = z.object({
-  body: z.object({
-    email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email({ message: 'Invalid email address' }),
-    password: z
-      .string({ required_error: 'Password is required' })
-      .min(8, { message: 'Pasword must be at least 8 charecture' }),
-    key: z.string({ required_error: 'Authorization faield' }),
-  }),
-});
 const registerUserValidationSchema = z.object({
   body: z.object({
     email: z
@@ -27,22 +14,16 @@ const registerUserValidationSchema = z.object({
         required_error: 'Email is required',
       })
       .email({ message: 'Invalid email address' }),
-    password: z
-      .string({ required_error: 'Password is required' })
-      .min(8, { message: 'Pasword must be at least 8 charecture' }),
+    password: z.string({ required_error: 'Password is required' }),
   }),
 });
 
 const changePasswordValidationSchema = z.object({
   body: z.object({
-    oldPassword: z
-      .string({
-        required_error: 'Old password is required',
-      })
-      .min(8, { message: 'Pasword must be at least 8 charecture' }),
-    newPassword: z
-      .string({ required_error: 'Password is required' })
-      .min(8, { message: 'Pasword must be at least 8 charecture' }),
+    oldPassword: z.string({
+      required_error: 'Old password is required',
+    }),
+    newPassword: z.string({ required_error: 'Password is required' }),
   }),
 });
 
@@ -69,11 +50,9 @@ const resetPasswordValidationSchema = z.object({
     id: z.string({
       required_error: 'User id is required!',
     }),
-    newPassword: z
-      .string({
-        required_error: 'User password is required!',
-      })
-      .min(8, { message: 'Pasword must be at least 8 charecture' }),
+    newPassword: z.string({
+      required_error: 'User password is required!',
+    }),
   }),
 });
 
@@ -83,6 +62,5 @@ export const AuthValidation = {
   refreshTokenValidationSchema,
   forgetPasswordValidationSchema,
   resetPasswordValidationSchema,
-  adminRegisterValidationSchema,
   registerUserValidationSchema,
 };

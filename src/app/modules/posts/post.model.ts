@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { IPost, PostCategory } from './post.interface';
+import { IPost } from './post.interface';
 
 // Schema definition for Post
 const PostSchema = new Schema<IPost>({
@@ -8,17 +8,17 @@ const PostSchema = new Schema<IPost>({
     ref: 'User',
     required: true,
   },
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  },
   title: {
     type: String,
     required: true,
   },
   content: {
     type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    enum: Object.values(PostCategory),
     required: true,
   },
   isPremium: {

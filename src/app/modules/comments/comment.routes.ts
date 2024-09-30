@@ -2,12 +2,15 @@ import express from 'express';
 import { CommentControllers } from './comment.controller';
 import auth from '../../middlewares/auth';
 import { USER_ROLE } from '../user/user.constants';
+import validateRequest from '../../middlewares/validateRequest';
+import { CommentValidations } from './comment.validation';
 const router = express.Router();
 
 // Routes for comments
 router.post(
   '/:postId',
   auth(USER_ROLE.user, USER_ROLE.admin),
+  validateRequest(CommentValidations.commentSchema),
   CommentControllers.createComment,
 );
 

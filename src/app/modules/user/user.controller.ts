@@ -31,19 +31,26 @@ const updateUserData = catchAsync(async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
 
-  const file = req.file;
-
-  const user = await UserService.updateUserDataIntoDB(
-    id,
-    userData,
-    file,
-    req.user,
-  );
+  const user = await UserService.updateUserDataIntoDB(id, userData, req.user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User details updated successfully',
+    data: user,
+  });
+});
+
+const updateUserProfilePicture = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const file = req.file;
+
+  const user = await UserService.updateUserProfilePicture(id, file, req.user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile picture updated successfully',
     data: user,
   });
 });
@@ -71,4 +78,5 @@ export const UserController = {
   getAllUsers,
   updateUserData,
   toggleFollowUser,
+  updateUserProfilePicture,
 };

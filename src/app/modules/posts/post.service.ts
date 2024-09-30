@@ -10,22 +10,23 @@ import { SortOrder } from 'mongoose';
 
 // Create a new post
 const createPost = async (postData: IPost, author: string, files: any[]) => {
-  console.log('files', files);
   try {
-    // if (files && files.length > 0) {
-    //   const imageNames = files.map(
-    //     (_, index) =>
-    //       `${postData.title.replace(/\s+/g, '-')}-${author}-${Date.now()}-${index}`,
-    //   );
-    //   const paths = files.map((file) => file.path);
-    //   const results = await sendMultipleImagesToCloudinary(imageNames, paths);
-    //   postData.imageUrls = results.map((result: any) => result.secure_url);
-    // }
-    // const post = await Post.create({ ...postData, author });
-    // return post;
-    // return post;
+    // Check if there are files and map the 'path' values to the imageUrls array
+    let imageUrls: string[] | undefined = undefined;
+
+    if (files && files.length > 0) {
+      imageUrls = files.map((file) => file.path);
+    }
+
+    // Create the post with the imageUrls field only if it exists and is not empty
+    const postDataWithImages = imageUrls
+      ? { ...postData, author, imageUrls }
+      : { ...postData, author };
+
+    const post = await Post.create(postDataWithImages);
+
+    return post;
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error(error);
     throw new AppError(httpStatus.CONFLICT, 'Server error');
   }
@@ -74,6 +75,7 @@ const getAllPosts = async (
   // Get posts with sorting by upvotes or createdAt date, apply pagination
   const posts = await Post.find(query)
     .populate('author', 'name profilePicture')
+    .populate('category', 'name description')
     .sort(sortOptions)
     .skip(skip)
     .limit(limit);
@@ -112,7 +114,7 @@ const getUserPosts = async (
     limit = 10,
   } = filterOptions;
 
-  const query: any = { isDeleted: false, isPublished: true, author: userId }; // Filter by userId and isDeleted
+  const query: any = { isDeleted: false, isPublished: true, author: userId };
 
   // Apply filtering by category if provided
   if (category) {
@@ -137,6 +139,7 @@ const getUserPosts = async (
   // Get posts made by the specific user, applying filters, sorting, and pagination
   const posts = await Post.find(query)
     .populate('author', 'name profilePicture')
+    .populate('category', 'name description')
     .sort(sortOptions)
     .skip(skip)
     .limit(limit);
@@ -160,7 +163,7 @@ const getUserPosts = async (
 const updatePost = async (
   postId: string,
   updateData: Partial<IPost>,
-  userId: string,
+  user: any,
 ): Promise<IPost | null> => {
   const post = await Post.findById(postId);
 
@@ -168,14 +171,33 @@ const updatePost = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
   }
 
-  // Check if the user is the author
-  if (!post.author.equals(userId)) {
+  // Check if the user is the author or an admin
+  if (!post.author.equals(user._id) && user.role !== 'admin') {
     throw new AppError(
       httpStatus.FORBIDDEN,
       'You are not authorized to update this post',
     );
   }
 
+  // Define allowed fields for regular users
+  const allowedUpdates = [
+    'category',
+    'title',
+    'content',
+    'isPremium',
+    'imageUrls',
+  ];
+
+  // If the user is not an admin, filter the updateData to only include allowed fields
+  if (user.role !== 'admin') {
+    Object.keys(updateData).forEach((key) => {
+      if (!allowedUpdates.includes(key)) {
+        delete updateData[key as keyof IPost];
+      }
+    });
+  }
+
+  // Update the post with filtered updateData
   const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
     new: true,
   });
@@ -211,6 +233,49 @@ const deletePost = async (
   return deletedPost;
 };
 
+// const votePost = async (
+//   postId: string,
+//   userId: Types.ObjectId,
+//   voteType: 'upvote' | 'downvote',
+// ): Promise<IPost | null> => {
+//   // Find the post
+//   const post = await Post.findById(postId);
+
+//   if (!post) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
+//   }
+
+//   // Define the update query logic
+//   let update = {};
+
+//   if (voteType === 'upvote') {
+//     // Toggle upvote: Remove upvote if already present, or add upvote and remove downvote
+//     if (post.upvotes.includes(userId)) {
+//       update = { $pull: { upvotes: userId } }; // Remove the upvote
+//     } else {
+//       update = {
+//         $addToSet: { upvotes: userId }, // Add to upvotes if not already present
+//         $pull: { downvotes: userId }, // Remove from downvotes if present
+//       };
+//     }
+//   } else if (voteType === 'downvote') {
+//     // Toggle downvote: Remove downvote if already present, or add downvote and remove upvote
+//     if (post.downvotes.includes(userId)) {
+//       update = { $pull: { downvotes: userId } }; // Remove the downvote
+//     } else {
+//       update = {
+//         $addToSet: { downvotes: userId }, // Add to downvotes if not already present
+//         $pull: { upvotes: userId }, // Remove from upvotes if present
+//       };
+//     }
+//   }
+
+//   const updatedPost = await Post.findOneAndUpdate({ _id: postId }, update, {
+//     new: true,
+//   });
+
+//   return updatedPost;
+// };
 const votePost = async (
   postId: string,
   userId: Types.ObjectId,
@@ -227,27 +292,40 @@ const votePost = async (
   let update = {};
 
   if (voteType === 'upvote') {
-    // Toggle upvote: Remove upvote if already present, or add upvote and remove downvote
+    // If the user has already upvoted, remove the upvote
     if (post.upvotes.includes(userId)) {
       update = { $pull: { upvotes: userId } }; // Remove the upvote
     } else {
-      update = {
-        $addToSet: { upvotes: userId }, // Add to upvotes if not already present
-        $pull: { downvotes: userId }, // Remove from downvotes if present
-      };
+      // If the user has downvoted, remove the downvote and add the upvote
+      if (post.downvotes.includes(userId)) {
+        update = {
+          $pull: { downvotes: userId }, // Remove the downvote
+          $addToSet: { upvotes: userId }, // Add to upvotes
+        };
+      } else {
+        // Just add the upvote if there are no existing votes
+        update = { $addToSet: { upvotes: userId } };
+      }
     }
   } else if (voteType === 'downvote') {
-    // Toggle downvote: Remove downvote if already present, or add downvote and remove upvote
+    // If the user has already downvoted, remove the downvote
     if (post.downvotes.includes(userId)) {
       update = { $pull: { downvotes: userId } }; // Remove the downvote
     } else {
-      update = {
-        $addToSet: { downvotes: userId }, // Add to downvotes if not already present
-        $pull: { upvotes: userId }, // Remove from upvotes if present
-      };
+      // If the user has upvoted, remove the upvote and add the downvote
+      if (post.upvotes.includes(userId)) {
+        update = {
+          $pull: { upvotes: userId }, // Remove the upvote
+          $addToSet: { downvotes: userId }, // Add to downvotes
+        };
+      } else {
+        // Just add the downvote if there are no existing votes
+        update = { $addToSet: { downvotes: userId } };
+      }
     }
   }
 
+  // Update the post with the new vote state
   const updatedPost = await Post.findOneAndUpdate({ _id: postId }, update, {
     new: true,
   });

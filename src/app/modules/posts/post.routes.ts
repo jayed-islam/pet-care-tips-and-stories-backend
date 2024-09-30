@@ -4,6 +4,8 @@ import { PostControllers } from './post.controller';
 import auth from '../../middlewares/auth';
 import { USER_ROLE } from '../user/user.constants';
 import { multerUpload } from '../../config/multer.config';
+import validateRequest from '../../middlewares/validateRequest';
+import { PostValidations } from './post.validation';
 const router = express.Router();
 
 // Route for creating a new post
@@ -15,6 +17,7 @@ router.post(
     next();
   },
   auth(USER_ROLE.admin, USER_ROLE.user),
+  validateRequest(PostValidations.createPostSchema),
   PostControllers.createPost,
 );
 
@@ -32,6 +35,7 @@ router.get(
 router.put(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.user),
+  validateRequest(PostValidations.updatePostSchema),
   PostControllers.updatePost,
 );
 
@@ -46,6 +50,7 @@ router.delete(
 router.post(
   '/:id/vote',
   auth(USER_ROLE.admin, USER_ROLE.user),
+  validateRequest(PostValidations.voteAPostSchema),
   PostControllers.votePost,
 );
 

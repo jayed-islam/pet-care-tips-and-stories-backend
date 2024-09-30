@@ -13,12 +13,6 @@ router.post(
   AuthControllers.registerUser,
 );
 
-// router.post(
-//   '/register/admin',
-//   validateRequest(AuthValidation.adminRegisterValidationSchema),
-//   AuthControllers.registerAdmin,
-// );
-
 router.post(
   '/login',
   validateRequest(AuthValidation.loginValidationSchema),

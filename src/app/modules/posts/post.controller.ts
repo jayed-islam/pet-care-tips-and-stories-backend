@@ -56,9 +56,9 @@ const getUserPosts = catchAsync(async (req: Request, res: Response) => {
 const updatePost = catchAsync(async (req: Request, res: Response) => {
   const postId = req.params.id;
   const updateData: Partial<IPost> = req.body;
-  const userId = req.user._id;
+  const user = req.user;
 
-  const updatedPost = await PostServices.updatePost(postId, updateData, userId);
+  const updatedPost = await PostServices.updatePost(postId, updateData, user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
