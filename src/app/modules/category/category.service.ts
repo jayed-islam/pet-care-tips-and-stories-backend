@@ -10,7 +10,6 @@ const createCategory = async (categoryData: ICategory): Promise<ICategory> => {
     // Check if the category name already exists
     const existingCategory = await Category.findOne({
       name: categoryData.name,
-      isDeleted: false, // Ensure we are checking against non-deleted categories
     });
 
     if (existingCategory) {

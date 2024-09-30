@@ -11,7 +11,7 @@ export interface IComment extends Document {
   post: Types.ObjectId;
   author: Types.ObjectId;
   content: string;
-  type: CommentType;
+  type?: CommentType;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -6,10 +6,10 @@ import httpStatus from 'http-status';
 
 // Create a comment
 const createComment = catchAsync(async (req: Request, res: Response) => {
-  const { postId, content } = req.body;
-  const userId = req.user.id; // Assuming req.user contains authenticated user data
+  const { post, content } = req.body;
+  const userId = req.user._id;
 
-  const comment = await CommentServices.createComment(postId, userId, content);
+  const comment = await CommentServices.createComment(post, userId, content);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -36,8 +36,9 @@ const getCommentsForPost = catchAsync(async (req, res) => {
 // Delete a comment
 const deleteComment = catchAsync(async (req, res) => {
   const commentId = req.params.commentId;
-  const userId = req.user.id;
+  const userId = req.user._id;
 
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const result = await CommentServices.deleteComment(commentId, userId);
 
   sendResponse(res, {
