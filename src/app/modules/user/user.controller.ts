@@ -58,7 +58,7 @@ const updateUserProfilePicture = catchAsync(async (req, res) => {
 // Toggle follow/unfollow user controller
 const toggleFollowUser = catchAsync(async (req, res) => {
   const { targetUserId } = req.body;
-  const currentUserId = req.user.id;
+  const currentUserId = req.user._id;
 
   const result = await UserService.toggleFollowUser(
     currentUserId,
