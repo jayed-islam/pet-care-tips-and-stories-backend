@@ -91,7 +91,7 @@ const makePayment = async (userId: string, postId: string, amount: number) => {
 
     const paymentInfo: PaymentInfo = {
       transactionId,
-      amount,
+      amount: amount ?? 51,
       customerName: user?.name,
       customerEmail: user?.email,
       customerAddress: user?.address ?? '',
@@ -104,17 +104,26 @@ const makePayment = async (userId: string, postId: string, amount: number) => {
       user?._id as string,
     );
 
+    console.log('session', paymentSession);
+
     // Create a payment record in the database
     await Payment.create(
-      {
-        userId,
-        postId,
-        amount,
-        transactionId,
-        paymentStatus: 'PENDING',
-      },
+      [
+        {
+          user: userId,
+          post: postId,
+          amount,
+          transactionId,
+          paymentStatus: 'PENDING',
+        },
+      ],
       { session },
     );
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return paymentSession; // Return session for frontend to handle payment redirection
 
     await session.commitTransaction();
     await session.endSession();

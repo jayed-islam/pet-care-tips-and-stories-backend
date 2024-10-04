@@ -8,7 +8,7 @@ export const initiatePayment = async (payload: PaymentInfo, userId: string) => {
     store_id: config.AMARPAY_ID,
     signature_key: config.SIGNATURE_KEY,
     tran_id: payload.transactionId,
-    success_url: `${config.APP_URL}/api/payment/success?tnxId=${payload.transactionId}&userId=${userId}`,
+    success_url: `${config.APP_URL}/api/v1/payment/success?tnxId=${payload.transactionId}&userId=${userId}`,
     fail_url: `${config.APP_URL}/api/payment/fail?tnxId=${payload.transactionId}`,
     cancel_url: 'http://www.merchantdomain.com/cancelpage.html',
     amount: payload.amount,

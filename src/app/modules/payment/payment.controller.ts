@@ -22,7 +22,7 @@ const FailPayment = catchAsync(async (req, res) => {
 const MakePayemnt = catchAsync(async (req, res) => {
   const { postId, amount } = req.body;
   const paymentSession = await PaymentService.makePayment(
-    req.user.id,
+    req.user._id,
     postId,
     amount,
   );

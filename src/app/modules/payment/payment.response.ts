@@ -4,7 +4,7 @@ export const htmlPaymentSuccessContent = `
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Confirmation</title>
+    <title>Premium Content Payment Confirmation</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -38,23 +38,6 @@ export const htmlPaymentSuccessContent = `
       .content p {
         margin: 15px 0;
       }
-      .content .info {
-        margin: 20px 0;
-      }
-      .info div {
-        margin-bottom: 10px;
-      }
-      .footer {
-        background-color: #f1f1f1;
-        color: #777;
-        text-align: center;
-        padding: 10px;
-        font-size: 14px;
-      }
-      .footer a {
-        color: #4CAF50;
-        text-decoration: none;
-      }
       .btn-home {
         display: inline-block;
         margin-top: 20px;
@@ -74,27 +57,27 @@ export const htmlPaymentSuccessContent = `
   <body>
     <div class="container">
       <div class="header">
-        Payment Confirmation
+        Premium Content Payment Confirmation
       </div>
       <div class="content">
         <h2>Thank you for your payment!</h2>
-        <p>We have successfully received your payment.</p>
-        <p>If you have any questions about your payment or need further assistance, please do not hesitate to contact us.</p>
-        <p>Thank you for choosing our service.</p>
-        <a href="http://localhost:5173" target="_blank" class="btn-home">Go Home</a>
+        <p>Your payment for premium content has been successfully processed.</p>
+        <p>You can now access your purchased posts under the "Purchased Posts" section in your profile.</p>
+        <p>If you have any questions about your payment or need further assistance, please feel free to contact us.</p>
+        <p>Thank you for choosing our service. Enjoy your premium content!</p>
+        <a href="http://localhost:3000" target="_blank" class="btn-home">Go Home</a>
       </div>
     </div>
   </body>
   </html>
 `;
-
 export const htmlPaymentFailContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Failed</title>
+  <title>Premium Content Payment Failed</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -128,45 +111,32 @@ export const htmlPaymentFailContent = `
     .content p {
       margin: 15px 0;
     }
-    .footer {
-      background-color: #f1f1f1;
-      color: #777;
-      text-align: center;
-      padding: 10px;
-      font-size: 14px;
-    }
-    .footer a {
-      color: #e74c3c;
-      text-decoration: none;
-    }
-       .btn-home {
+    .btn-home {
       display: inline-block;
       margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
       color: white;
-      background-color: #4CAF50;
+      background-color: #e74c3c;
       text-decoration: none;
       border-radius: 5px;
       text-align: center;
     }
     .btn-home:hover {
-      background-color: #45a049;
+      background-color: #d43f33;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      Payment Failed
+      Premium Content Payment Failed
     </div>
     <div class="content">
       <h2>We're sorry, your payment could not be processed.</h2>
-      <p>Dear Customer,</p>
-      <p>Unfortunately, your payment could not be completed. Please try again or contact our support team for assistance.</p>
-      <p>If you have any questions or need further help, please don't hesitate to reach out to our support team.</p>
-      <p>Thank you for your understanding.</p>
-       <a href="http://localhost:5173" target="_blank"  class="btn-home">Go Home</a>
+      <p>Unfortunately, your payment for premium content was unsuccessful. Please try again or contact our support team for assistance.</p>
+      <p>If you need further help, feel free to reach out to our support team. We are here to assist you.</p>
+      <a href="http://localhost:3000" target="_blank" class="btn-home">Go Home</a>
     </div>
     <div class="footer">
       <p>&copy; 2024 Fast Bike. All rights reserved.</p>

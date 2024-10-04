@@ -89,9 +89,10 @@ const getAllUsers = async () => {
 
 const getUserProfile = async (userId: string): Promise<any> => {
   const user = await User.findById(userId)
-    // .populate('followers', 'name profilePicture')
-    // .populate('following', 'name profilePicture')
-    // .populate('posts')
+    .populate({
+      path: 'purchasedPosts',
+      populate: [{ path: 'author', select: '-password' }, { path: 'category' }],
+    })
     .exec();
 
   if (!user) {
