@@ -47,7 +47,12 @@ router.post(
 
 // Route for updating a post by ID
 router.put(
-  '/:id',
+  '/update/:id',
+  multerUpload.array('files'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   auth(USER_ROLE.admin, USER_ROLE.user),
   validateRequest(PostValidations.updatePostSchema),
   PostControllers.updatePost,

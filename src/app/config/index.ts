@@ -20,4 +20,9 @@ export default {
   admin_register_key: process.env.ADMIN_REGISTER_KEY,
   jwt_verification_secret: process.env.JWT_VERIFICATION_SECRET,
   verify_user_ui_link: process.env.VERIFY_USER_UI_LINK,
+  AMARPAY_ID: process.env.STORE_ID,
+  SIGNATURE_KEY: process.env.SIGNATURE_KEY,
+  PAYMENT_URL: process.env.PAYMENT_URL,
+  APP_URL: process.env.APP_URL,
+  PAYMENT_VERIFY_URL: process.env.PAYMENT_VERIFY_URL,
 };

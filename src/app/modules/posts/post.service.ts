@@ -502,11 +502,65 @@ const getUserPosts = async (
   };
 };
 
+// // Update a post by ID with author check
+// const updatePost = async (
+//   postId: string,
+//   updateData: Partial<IPost>,
+//   user: any,
+//   files: any[],
+// ): Promise<IPost | null> => {
+//   const post = await Post.findById(postId);
+
+//   if (!post) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
+//   }
+
+//   // Check if the user is the author or an admin
+//   if (!post.author.equals(user._id) && user.role !== 'admin') {
+//     throw new AppError(
+//       httpStatus.FORBIDDEN,
+//       'You are not authorized to update this post',
+//     );
+//   }
+
+//   let imageUrls: string[] | undefined = undefined;
+
+//   if (files && files.length > 0) {
+//     imageUrls = files.map((file) => file.path);
+//   }
+
+//   // Define allowed fields for regular users
+//   const allowedUpdates = [
+//     'category',
+//     'content',
+//     'isPremium',
+//     'imageUrls',
+//     'price',
+//   ];
+
+//   // If the user is not an admin, filter the updateData to only include allowed fields
+//   if (user.role !== 'admin') {
+//     Object.keys(updateData).forEach((key) => {
+//       if (!allowedUpdates.includes(key)) {
+//         delete updateData[key as keyof IPost];
+//       }
+//     });
+//   }
+
+//   // Update the post with filtered updateData
+//   const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
+//     new: true,
+//   });
+
+//   return updatedPost;
+// };
+
 // Update a post by ID with author check
 const updatePost = async (
   postId: string,
   updateData: Partial<IPost>,
   user: any,
+  files: any[],
 ): Promise<IPost | null> => {
   const post = await Post.findById(postId);
 
@@ -525,10 +579,10 @@ const updatePost = async (
   // Define allowed fields for regular users
   const allowedUpdates = [
     'category',
-    'title',
     'content',
     'isPremium',
     'imageUrls',
+    'price',
   ];
 
   // If the user is not an admin, filter the updateData to only include allowed fields
@@ -540,9 +594,32 @@ const updatePost = async (
     });
   }
 
+  // Handle image URLs
+  let imageUrls: string[] = post.imageUrls || []; // Start with existing image URLs or an empty array
+
+  // Check if there are new image files uploaded
+  if (files && files.length > 0) {
+    const newFilePaths = files.map((file) => file.path);
+    // If updateData.imageUrls is provided, append new paths to it
+    if (updateData.imageUrls && Array.isArray(updateData.imageUrls)) {
+      imageUrls = [...updateData.imageUrls, ...newFilePaths]; // Combine existing and new image URLs
+    } else {
+      imageUrls = [...imageUrls, ...newFilePaths]; // Just add new image URLs if no existing ones
+    }
+  } else if (updateData.imageUrls && Array.isArray(updateData.imageUrls)) {
+    // If no new files are uploaded but updateData has imageUrls, use them
+    imageUrls = updateData.imageUrls;
+  }
+
+  // Add imageUrls to updateData if they exist
+  if (imageUrls.length > 0) {
+    updateData.imageUrls = imageUrls;
+  }
+
   // Update the post with filtered updateData
   const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
     new: true,
+    runValidators: true, // This ensures that the updated document is validated against the schema
   });
 
   return updatedPost;

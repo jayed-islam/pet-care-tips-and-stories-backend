@@ -16,6 +16,7 @@ export interface IUser {
   userType: 'basic' | 'premium';
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
+  purchasedPosts: Types.ObjectId[];
   isDeleted: boolean;
   isVerified: boolean;
   passwordChangedAt?: Date;

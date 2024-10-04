@@ -23,14 +23,12 @@ const updatePostSchema = z
   .object({
     body: z.object({
       author: z.string({ required_error: 'Author is required' }),
-      title: z.string().optional(),
       content: z.string().optional(),
       category: z.string().optional(),
       isPremium: z.boolean().optional(),
       isDeleted: z.boolean().optional(),
       isPublished: z.boolean().optional(),
-      upvotes: z.array(z.string()).optional(),
-      downvotes: z.array(z.string()).optional(),
+      price: z.string().optional(),
     }),
   })
   .partial();

@@ -34,6 +34,9 @@ const PostSchema = new Schema<IPost>(
       type: Boolean,
       default: true,
     },
+    price: {
+      type: String,
+    },
     upvotes: [
       {
         type: Schema.Types.ObjectId,

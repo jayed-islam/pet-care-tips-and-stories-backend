@@ -10,6 +10,7 @@ export interface IPost extends Document {
   upvotes: Types.ObjectId[];
   downvotes: Types.ObjectId[];
   comments: Types.ObjectId[];
+  price: string;
   isDeleted: boolean;
   isPublished: boolean;
   imageUrls: string[];

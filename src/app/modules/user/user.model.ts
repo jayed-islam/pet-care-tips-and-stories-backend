@@ -67,6 +67,10 @@ const userSchema = new Schema<IUser, UserModel>(
     premiumEndDate: {
       type: Date,
     },
+    purchasedPosts: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+      default: [],
+    },
   },
   {
     timestamps: true,

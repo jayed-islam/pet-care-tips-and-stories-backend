@@ -85,8 +85,14 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
   const postId = req.params.id;
   const updateData: Partial<IPost> = req.body;
   const user = req.user;
+  const files = req.files;
 
-  const updatedPost = await PostServices.updatePost(postId, updateData, user);
+  const updatedPost = await PostServices.updatePost(
+    postId,
+    updateData,
+    user,
+    files as any[],
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
