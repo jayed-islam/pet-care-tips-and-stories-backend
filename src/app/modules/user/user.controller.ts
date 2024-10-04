@@ -16,6 +16,19 @@ const getCurrentUser = catchAsync(async (req, res) => {
   });
 });
 
+const getSingleUser = catchAsync(async (req, res) => {
+  const userId = req.params.id;
+
+  const user = await UserService.getUserProfile(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Current User details retrieved successfully',
+    data: user,
+  });
+});
+
 const getAllUsers = catchAsync(async (req, res) => {
   const results = await UserService.getAllUsers();
 
@@ -30,6 +43,8 @@ const getAllUsers = catchAsync(async (req, res) => {
 const updateUserData = catchAsync(async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
+
+  console.log('data', userData);
 
   const user = await UserService.updateUserDataIntoDB(id, userData, req.user);
 
@@ -79,4 +94,5 @@ export const UserController = {
   updateUserData,
   toggleFollowUser,
   updateUserProfilePicture,
+  getSingleUser,
 };

@@ -23,6 +23,20 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Get all home posts with optional filtering, sorting, and search
+const getHomePosts = catchAsync(async (req: Request, res: Response) => {
+  const filterOptions = req.query;
+
+  const posts = await PostServices.getHomePosts(filterOptions);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Home Posts Fetched Successfully!',
+    data: posts,
+  });
+});
+
 // Get all posts with optional filtering, sorting, and search
 const getAllPosts = catchAsync(async (req: Request, res: Response) => {
   const filterOptions = req.query;
@@ -37,10 +51,24 @@ const getAllPosts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Get all posts with optional filtering, sorting, and search
+const getSinglePost = catchAsync(async (req: Request, res: Response) => {
+  const postId = req.params.id;
+
+  const posts = await PostServices.getSinglePost(postId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Posts Fetched Successfully!',
+    data: posts,
+  });
+});
+
 // Get posts by a specific user
 const getUserPosts = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.userId;
-  const filterOptions = req.query;
+  const filterOptions = req.body;
 
   const userPosts = await PostServices.getUserPosts(userId, filterOptions);
 
@@ -106,4 +134,6 @@ export const PostControllers = {
   updatePost,
   deletePost,
   votePost,
+  getHomePosts,
+  getSinglePost,
 };

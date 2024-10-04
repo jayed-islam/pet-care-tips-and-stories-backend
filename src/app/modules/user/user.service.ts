@@ -11,6 +11,7 @@ const updateUserDataIntoDB = async (
   userData: Partial<IUser>,
   user: any,
 ) => {
+  console.log('user', userData);
   if (userId !== user._id) {
     throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
@@ -88,8 +89,8 @@ const getAllUsers = async () => {
 
 const getUserProfile = async (userId: string): Promise<any> => {
   const user = await User.findById(userId)
-    .populate('followers', 'name profilePicture')
-    .populate('following', 'name profilePicture')
+    // .populate('followers', 'name profilePicture')
+    // .populate('following', 'name profilePicture')
     // .populate('posts')
     .exec();
 

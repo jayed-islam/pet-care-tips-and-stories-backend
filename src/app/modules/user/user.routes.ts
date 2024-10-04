@@ -12,6 +12,12 @@ router.get(
   UserController.getCurrentUser,
 );
 
+router.get(
+  '/single-user/:id',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  UserController.getSingleUser,
+);
+
 router.put(
   '/me/update/:id',
   auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),

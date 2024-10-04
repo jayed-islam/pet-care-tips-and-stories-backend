@@ -17,7 +17,7 @@ router.post(
 router.get('/:postId', CommentControllers.getCommentsForPost);
 
 router.delete(
-  '/:commentId',
+  '/delete/:commentId',
   auth(USER_ROLE.user, USER_ROLE.admin),
   CommentControllers.deleteComment,
 );

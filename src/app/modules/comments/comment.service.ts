@@ -57,7 +57,7 @@ const createComment = async (
 // Get comments for a post
 const getCommentsForPost = async (postId: string) => {
   return await Comment.find({ post: postId })
-    .populate('author', 'username profilePicture')
+    .populate('author', 'name profilePicture')
     .exec();
 };
 

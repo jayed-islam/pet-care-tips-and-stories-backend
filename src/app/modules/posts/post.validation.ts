@@ -6,7 +6,6 @@ const createPostSchema = z.object({
     author: z
       .string({ required_error: 'Author is required' })
       .nonempty({ message: 'Author is required' }),
-    title: z.string({ required_error: 'Title is required' }),
     content: z.string({ required_error: 'Content is required' }),
     category: z.string({ required_error: 'Category is required' }),
   }),
