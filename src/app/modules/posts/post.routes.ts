@@ -32,11 +32,23 @@ router.post(
   PostControllers.createPost,
 );
 
-// Route for fetching all posts
 router.get('/', PostControllers.getAllPosts);
 
-// Route for fetching all posts
 router.get('/home-items', PostControllers.getHomePosts);
+
+// Route for fetching all posts
+router.get(
+  '/get-list',
+  auth(USER_ROLE.admin),
+  PostControllers.getPostsForAdmin,
+);
+
+// Route for fetching all posts
+router.put(
+  '/status/update/:id',
+  auth(USER_ROLE.admin),
+  PostControllers.toggleUpdateStatus,
+);
 
 // Route for fetching posts by a specific user
 router.post(

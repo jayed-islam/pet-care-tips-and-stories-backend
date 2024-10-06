@@ -404,6 +404,14 @@ const getAllPosts = async (
 //   };
 // };
 
+const getPostsForAdmin = async () => {
+  return Post.find()
+    .populate({
+      path: 'author',
+      select: '-password',
+    })
+    .populate('category');
+};
 const getSinglePost = async (postId: string) => {
   try {
     const post = await Post.findOne({
@@ -653,6 +661,27 @@ const deletePost = async (
   return deletedPost;
 };
 
+const toggleStatusChange = async (postId: string): Promise<IPost | null> => {
+  // Find the post by ID
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
+  }
+
+  // Toggle the `isPublished` status
+  const newStatus = !post.isPublished;
+
+  // Update the post with the new `isPublished` status
+  const updatedPost = await Post.findByIdAndUpdate(
+    postId,
+    { isPublished: newStatus },
+    { new: true },
+  );
+
+  return updatedPost;
+};
+
 // const votePost = async (
 //   postId: string,
 //   userId: Types.ObjectId,
@@ -762,4 +791,6 @@ export const PostServices = {
   getUserPosts,
   getHomePosts,
   getSinglePost,
+  getPostsForAdmin,
+  toggleStatusChange,
 };

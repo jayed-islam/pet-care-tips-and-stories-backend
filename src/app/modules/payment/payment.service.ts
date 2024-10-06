@@ -73,6 +73,21 @@ const PaymentFailure = async (transactionId: string) => {
   }
 };
 
+const getAllPayments = async () => {
+  try {
+    const payments = await Payment.find()
+      .populate('user', '-password')
+      .populate('post');
+
+    return payments;
+  } catch (error) {
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Error fetching payments',
+    ); // Handle errors
+  }
+};
+
 // Function to initiate a payment for a premium post
 const makePayment = async (userId: string, postId: string, amount: number) => {
   const session = await mongoose.startSession();
@@ -92,10 +107,10 @@ const makePayment = async (userId: string, postId: string, amount: number) => {
     const paymentInfo: PaymentInfo = {
       transactionId,
       amount: amount ?? 51,
-      customerName: user?.name,
-      customerEmail: user?.email,
-      customerAddress: user?.address ?? '',
-      customerPhone: user?.phone ?? '',
+      customerName: user?.name ?? 'N/A',
+      customerEmail: user?.email ?? 'N/A',
+      customerAddress: user?.address ?? 'address',
+      customerPhone: user?.phone ?? '01309090909',
     };
 
     // Initiate payment via the payment gateway
@@ -144,4 +159,5 @@ export const PaymentService = {
   PaymentConfirmation,
   makePayment,
   PaymentFailure,
+  getAllPayments,
 };

@@ -18,4 +18,6 @@ router.post(
   PaymentController.MakePayemnt,
 );
 
+router.get('/get-list', PaymentController.FailPayment);
+
 export const PaymentRoutes = router;

@@ -35,8 +35,20 @@ const MakePayemnt = catchAsync(async (req, res) => {
   });
 });
 
+const getPaymentList = catchAsync(async (req, res) => {
+  const result = await PaymentService.getAllPayments();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Payment list retrived',
+    data: result,
+  });
+});
+
 export const PaymentController = {
   ConfirmPayment,
   MakePayemnt,
   FailPayment,
+  getPaymentList,
 };

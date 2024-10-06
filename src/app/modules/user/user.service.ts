@@ -80,7 +80,7 @@ const updateUserProfilePicture = async (
 };
 
 const getAllUsers = async () => {
-  return User.find();
+  return User.find().select('-password');
 };
 
 // const getUserByIdFromDB = async (userId: string) => {
@@ -89,6 +89,14 @@ const getAllUsers = async () => {
 
 const getUserProfile = async (userId: string): Promise<any> => {
   const user = await User.findById(userId)
+    .populate({
+      path: 'followers',
+      select: '-password',
+    })
+    .populate({
+      path: 'following',
+      select: '-password',
+    })
     .populate({
       path: 'purchasedPosts',
       populate: [{ path: 'author', select: '-password' }, { path: 'category' }],

@@ -31,7 +31,7 @@ router.put(
   UserController.updateUserProfilePicture,
 );
 
-router.get('/get-list', auth(USER_ROLE.admin), UserController.getCurrentUser);
+router.get('/get-list', auth(USER_ROLE.admin), UserController.getAllUsers);
 
 router.post(
   '/toggle-follow',

@@ -37,6 +37,17 @@ const getHomePosts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getPostsForAdmin = catchAsync(async (req: Request, res: Response) => {
+  const posts = await PostServices.getPostsForAdmin();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Home Posts Fetched Successfully!',
+    data: posts,
+  });
+});
+
 // Get all posts with optional filtering, sorting, and search
 const getAllPosts = catchAsync(async (req: Request, res: Response) => {
   const filterOptions = req.query;
@@ -117,6 +128,20 @@ const deletePost = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// update status
+const toggleUpdateStatus = catchAsync(async (req: Request, res: Response) => {
+  const postId = req.params.id;
+
+  const result = await PostServices.toggleStatusChange(postId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Post status updated Successfully!',
+    data: result,
+  });
+});
+
 // Vote (upvote or downvote) on a post
 const votePost = catchAsync(async (req: Request, res: Response) => {
   const postId = req.params.id;
@@ -142,4 +167,6 @@ export const PostControllers = {
   votePost,
   getHomePosts,
   getSinglePost,
+  getPostsForAdmin,
+  toggleUpdateStatus,
 };
