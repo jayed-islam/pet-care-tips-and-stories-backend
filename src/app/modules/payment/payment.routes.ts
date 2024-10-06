@@ -18,6 +18,10 @@ router.post(
   PaymentController.MakePayemnt,
 );
 
-router.get('/get-list', PaymentController.FailPayment);
+router.get(
+  '/get-list',
+  auth(USER_ROLE.admin),
+  PaymentController.getPaymentList,
+);
 
 export const PaymentRoutes = router;

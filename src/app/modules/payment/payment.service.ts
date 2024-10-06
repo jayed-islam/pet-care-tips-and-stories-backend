@@ -77,7 +77,8 @@ const getAllPayments = async () => {
   try {
     const payments = await Payment.find()
       .populate('user', '-password')
-      .populate('post');
+      .populate('post')
+      .sort({ createdAt: -1 });
 
     return payments;
   } catch (error) {

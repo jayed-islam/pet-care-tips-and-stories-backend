@@ -410,7 +410,8 @@ const getPostsForAdmin = async () => {
       path: 'author',
       select: '-password',
     })
-    .populate('category');
+    .populate('category')
+    .sort({ createdAt: -1 });
 };
 const getSinglePost = async (postId: string) => {
   try {

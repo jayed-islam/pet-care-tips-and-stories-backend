@@ -101,6 +101,7 @@ const getUserProfile = async (userId: string): Promise<any> => {
       path: 'purchasedPosts',
       populate: [{ path: 'author', select: '-password' }, { path: 'category' }],
     })
+    .sort({ createdAt: -1 })
     .exec();
 
   if (!user) {
