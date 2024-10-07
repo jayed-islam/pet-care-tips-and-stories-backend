@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // services/post.service.ts
 import httpStatus from 'http-status';
@@ -31,71 +32,6 @@ const createPost = async (postData: IPost, author: string, files: any[]) => {
     throw new AppError(httpStatus.CONFLICT, 'Server error');
   }
 };
-
-// // Get all posts with optional filtering, sorting, and search
-// const getAllPosts = async (
-//   filterOptions: {
-//     category?: string;
-//     search?: string;
-//     sortBy?: 'upvotes' | 'newest';
-//     page?: number;
-//     limit?: number;
-//   } = {},
-// ) => {
-//   const {
-//     category,
-//     search,
-//     sortBy = 'upvotes',
-//     page = 1,
-//     limit = 10,
-//   } = filterOptions;
-
-//   const query: any = { isDeleted: false, isPublished: true };
-
-//   // Apply filtering by category if provided
-//   if (category) {
-//     query.category = category;
-//   }
-
-//   // Apply searching by content if provided
-//   if (search) {
-//     query.$or = [
-//       { title: { $regex: search, $options: 'i' } },
-//       { content: { $regex: search, $options: 'i' } },
-//     ];
-//   }
-
-//   // Calculate the number of documents to skip for pagination
-//   const skip = (page - 1) * limit;
-
-//   // Correct sorting options
-//   const sortOptions: { [key: string]: SortOrder } =
-//     sortBy === 'upvotes' ? { upvotes: -1 } : { createdAt: 1 };
-
-//   // Get posts with sorting by upvotes or createdAt date, apply pagination
-//   const posts = await Post.find(query)
-//     .populate('author', 'name profilePicture')
-//     .populate('category', 'name description')
-//     .sort(sortOptions)
-//     .skip(skip)
-//     .limit(limit);
-
-//   // Get the total number of posts for pagination
-//   const totalCount = await Post.countDocuments(query);
-
-//   const meta = {
-//     currentPage: page,
-//     totalPages: Math.ceil(totalCount / limit),
-//     totalPosts: totalCount,
-//   };
-
-//   return {
-//     posts,
-//     meta,
-//   };
-// };
-
-// Get all posts with optional filtering, sorting, and search
 
 const getHomePosts = async (
   filterOptions: {
@@ -169,77 +105,6 @@ const getHomePosts = async (
   };
 };
 
-// const getAllPosts = async (
-//   filterOptions: {
-//     category?: string;
-//     search?: string;
-//     sortBy?: 'upvotes' | 'newest';
-//     page?: number;
-//     limit?: number;
-//   } = {},
-// ) => {
-//   const {
-//     category,
-//     search,
-//     sortBy = 'upvotes',
-//     page = 1,
-//     limit = 10,
-//   } = filterOptions;
-
-//   const query: any = { isDeleted: false, isPublished: true };
-
-//   // Apply filtering by category if provided
-//   // Normalize category input
-//   if (category) {
-//     // Split by comma and trim whitespace
-//     const categoryArray = category.split(',').map((cat) => cat.trim());
-//     // Convert the array of category strings to ObjectId
-//     query.category = {
-//       $in: categoryArray,
-//     };
-//   }
-
-//   // Apply searching by content if provided
-//   if (search) {
-//     query.$or = [
-//       { title: { $regex: search, $options: 'i' } },
-//       { content: { $regex: search, $options: 'i' } },
-//     ];
-//   }
-
-//   // Calculate the number of documents to skip for pagination
-//   const skip = (page - 1) * limit;
-
-//   // Correct sorting options based on 'sortBy' option
-//   const sortOptions: { [key: string]: SortOrder } =
-//     sortBy === 'upvotes' ? { upvotes: -1 } : { createdAt: -1 };
-
-//   // Using Promise.all to fetch posts, latestPosts, and totalCount simultaneously
-//   const [posts, totalCount] = await Promise.all([
-//     Post.find(query)
-//       .populate('author', 'name profilePicture')
-//       .populate('category', 'name description')
-//       .sort(sortOptions)
-//       .skip(skip)
-//       .limit(limit),
-
-//     Post.countDocuments(query),
-//   ]);
-
-//   const meta = {
-//     currentPage: page,
-//     totalPages: Math.ceil(totalCount / limit),
-//     totalPosts: totalCount,
-//     hasNextPage: page * limit < totalCount,
-//     hasPrevPage: page > 1,
-//   };
-
-//   return {
-//     posts,
-//     meta,
-//   };
-// };
-
 const getAllPosts = async (
   filterOptions: {
     category?: string;
@@ -308,101 +173,6 @@ const getAllPosts = async (
     meta,
   };
 };
-
-// const getAllPosts = async (
-//   filterOptions: {
-//     category?: string;
-//     search?: string;
-//     sortBy?: 'upvotes' | 'newest';
-//     page?: number;
-//     limit?: number;
-//   } = {},
-// ) => {
-//   const {
-//     category,
-//     search,
-//     sortBy = 'upvotes',
-//     page = 1,
-//     limit = 10,
-//   } = filterOptions;
-
-//   const query: any = { isDeleted: false, isPublished: true };
-
-//   // Apply filtering by category if provided
-//   if (category) {
-//     const categoryArray = category.split(',').map((cat) => cat.trim());
-//     query.category = {
-//       $in: categoryArray,
-//     };
-//   }
-
-//   // Apply searching by title or content if provided
-//   if (search) {
-//     query.$or = [
-//       { title: { $regex: search, $options: 'i' } },
-//       { content: { $regex: search, $options: 'i' } },
-//     ];
-//   }
-
-//   // Calculate pagination
-//   const skip = (page - 1) * limit;
-
-//   // Set correct sorting options based on upvotes or newest
-//   const sortOptions: Record<string, 1 | -1> =
-//     sortBy === 'upvotes' ? { upvotesCount: -1 } : { createdAt: -1 };
-
-//   // Fetch posts with dynamic sorting based on upvotes count
-//   const [posts, totalCount] = await Promise.all([
-//     Post.aggregate([
-//       { $match: query }, // Match based on query filters
-//       {
-//         $addFields: {
-//           upvotesCount: { $size: '$upvotes' }, // Dynamically calculate upvotes count
-//         },
-//       },
-//       { $sort: sortOptions }, // Sort by upvotesCount or createdAt
-//       { $skip: skip }, // Apply pagination
-//       { $limit: limit },
-//       {
-//         $lookup: {
-//           from: 'users',
-//           localField: 'author',
-//           foreignField: '_id',
-//           as: 'author',
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'categories',
-//           localField: 'category',
-//           foreignField: '_id',
-//           as: 'category',
-//         },
-//       },
-//       {
-//         // Exclude the 'password' field from the populated 'author' field
-//         $project: {
-//           'author.password': 0,
-//         },
-//       },
-//     ]).exec(),
-
-//     Post.countDocuments(query),
-//   ]);
-
-//   const meta = {
-//     currentPage: page,
-//     totalPages: Math.ceil(totalCount / limit),
-//     totalPosts: totalCount,
-//     hasNextPage: page * limit < totalCount,
-//     hasPrevPage: page > 1,
-//   };
-
-//   return {
-//     posts,
-//     meta,
-//   };
-// };
 
 const getPostsForAdmin = async () => {
   return Post.find()
@@ -510,59 +280,6 @@ const getUserPosts = async (
     meta,
   };
 };
-
-// // Update a post by ID with author check
-// const updatePost = async (
-//   postId: string,
-//   updateData: Partial<IPost>,
-//   user: any,
-//   files: any[],
-// ): Promise<IPost | null> => {
-//   const post = await Post.findById(postId);
-
-//   if (!post) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
-//   }
-
-//   // Check if the user is the author or an admin
-//   if (!post.author.equals(user._id) && user.role !== 'admin') {
-//     throw new AppError(
-//       httpStatus.FORBIDDEN,
-//       'You are not authorized to update this post',
-//     );
-//   }
-
-//   let imageUrls: string[] | undefined = undefined;
-
-//   if (files && files.length > 0) {
-//     imageUrls = files.map((file) => file.path);
-//   }
-
-//   // Define allowed fields for regular users
-//   const allowedUpdates = [
-//     'category',
-//     'content',
-//     'isPremium',
-//     'imageUrls',
-//     'price',
-//   ];
-
-//   // If the user is not an admin, filter the updateData to only include allowed fields
-//   if (user.role !== 'admin') {
-//     Object.keys(updateData).forEach((key) => {
-//       if (!allowedUpdates.includes(key)) {
-//         delete updateData[key as keyof IPost];
-//       }
-//     });
-//   }
-
-//   // Update the post with filtered updateData
-//   const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
-//     new: true,
-//   });
-
-//   return updatedPost;
-// };
 
 // Update a post by ID with author check
 const updatePost = async (
@@ -683,49 +400,6 @@ const toggleStatusChange = async (postId: string): Promise<IPost | null> => {
   return updatedPost;
 };
 
-// const votePost = async (
-//   postId: string,
-//   userId: Types.ObjectId,
-//   voteType: 'upvote' | 'downvote',
-// ): Promise<IPost | null> => {
-//   // Find the post
-//   const post = await Post.findById(postId);
-
-//   if (!post) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
-//   }
-
-//   // Define the update query logic
-//   let update = {};
-
-//   if (voteType === 'upvote') {
-//     // Toggle upvote: Remove upvote if already present, or add upvote and remove downvote
-//     if (post.upvotes.includes(userId)) {
-//       update = { $pull: { upvotes: userId } }; // Remove the upvote
-//     } else {
-//       update = {
-//         $addToSet: { upvotes: userId }, // Add to upvotes if not already present
-//         $pull: { downvotes: userId }, // Remove from downvotes if present
-//       };
-//     }
-//   } else if (voteType === 'downvote') {
-//     // Toggle downvote: Remove downvote if already present, or add downvote and remove upvote
-//     if (post.downvotes.includes(userId)) {
-//       update = { $pull: { downvotes: userId } }; // Remove the downvote
-//     } else {
-//       update = {
-//         $addToSet: { downvotes: userId }, // Add to downvotes if not already present
-//         $pull: { upvotes: userId }, // Remove from upvotes if present
-//       };
-//     }
-//   }
-
-//   const updatedPost = await Post.findOneAndUpdate({ _id: postId }, update, {
-//     new: true,
-//   });
-
-//   return updatedPost;
-// };
 const votePost = async (
   postId: string,
   userId: Types.ObjectId,
