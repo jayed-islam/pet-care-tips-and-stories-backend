@@ -196,14 +196,14 @@ const forgetPassword = async (email: string) => {
 
   const jwtPayload = {
     email: user.email,
-    userId: user._id,
+    _id: user._id,
     role: user.role,
   };
 
   const resetToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    '5m',
+    '35m',
   );
 
   const resetUILink = `${config.reset_pass_ui_link}?id=${user._id}&token=${resetToken} `;
@@ -219,8 +219,9 @@ const resetPassword = async (
   payload: { id: string; newPassword: string },
   token: string,
 ) => {
+  console.log('id', payload.id, 'pas', payload.newPassword);
   // checking if the user is exist
-  const user = await User.isUserExistsByEmail(payload?.id);
+  const user = await User.findById(payload?.id);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
@@ -244,10 +245,12 @@ const resetPassword = async (
     config.jwt_access_secret as string,
   ) as JwtPayload;
 
+  console.log('deocd', decoded);
+
   //localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDI4NTA2MTcsImV4cCI6MTcwMjg1MTIxN30.-T90nRaz8-KouKki1DkCSMAbsHyb9yDi0djZU3D6QO4
 
-  if (payload.id !== decoded.userId) {
-    console.log(payload.id, decoded.userId);
+  if (payload.id !== decoded._id) {
+    console.log(payload.id, decoded._id);
     throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
 
@@ -259,7 +262,7 @@ const resetPassword = async (
 
   await User.findOneAndUpdate(
     {
-      id: decoded.userId,
+      _id: decoded._id,
       role: decoded.role,
     },
     {
