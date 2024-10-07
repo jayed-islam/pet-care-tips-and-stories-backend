@@ -65,7 +65,7 @@ export const htmlPaymentSuccessContent = `
         <p>You can now access your purchased posts under the "Purchased Posts" section in your profile.</p>
         <p>If you have any questions about your payment or need further assistance, please feel free to contact us.</p>
         <p>Thank you for choosing our service. Enjoy your premium content!</p>
-        <a href="http://localhost:3000" target="_blank" class="btn-home">Go Home</a>
+        <a href="https://eyebook.vercel.app/" target="_blank" class="btn-home">Go Home</a>
       </div>
     </div>
   </body>
@@ -136,7 +136,7 @@ export const htmlPaymentFailContent = `
       <h2>We're sorry, your payment could not be processed.</h2>
       <p>Unfortunately, your payment for premium content was unsuccessful. Please try again or contact our support team for assistance.</p>
       <p>If you need further help, feel free to reach out to our support team. We are here to assist you.</p>
-      <a href="http://localhost:3000" target="_blank" class="btn-home">Go Home</a>
+      <a href="https://eyebook.vercel.app/" target="_blank" class="btn-home">Go Home</a>
     </div>
     <div class="footer">
       <p>&copy; 2024 Fast Bike. All rights reserved.</p>

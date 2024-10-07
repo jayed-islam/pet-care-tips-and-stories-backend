@@ -39,6 +39,20 @@ const updateUserDataIntoDB = async (
   return userUpdatedData;
 };
 
+const updateUserByAdmin = async (userId: string, userData: Partial<IUser>) => {
+  const existingUser = await User.findById(userId);
+
+  if (!existingUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User Not Found');
+  }
+
+  const userUpdatedData = await User.findByIdAndUpdate(userId, userData, {
+    new: true,
+  });
+
+  return userUpdatedData;
+};
+
 const updateUserProfilePicture = async (
   userId: string,
   file: any,
@@ -82,10 +96,6 @@ const updateUserProfilePicture = async (
 const getAllUsers = async () => {
   return User.find().select('-password');
 };
-
-// const getUserByIdFromDB = async (userId: string) => {
-//   return User.findById(userId).select('email role');
-// };
 
 const getUserProfile = async (userId: string): Promise<any> => {
   const user = await User.findById(userId)
@@ -167,156 +177,11 @@ const toggleFollowUser = async (
     return { message: 'User followed successfully.' };
   }
 };
-// const toggleFollowUser = async (
-//   currentUserId: string,
-//   targetUserId: string,
-// ): Promise<any> => {
-//   if (currentUserId === targetUserId) {
-//     throw new AppError(httpStatus.BAD_REQUEST, 'You cannot follow yourself.');
-//   }
-
-//   // Start a session for the transaction
-//   const session = await startSession();
-//   await session.startTransaction();
-
-//   try {
-//     // Fetch both users within the transaction session
-//     const [targetUser, currentUser] = await Promise.all([
-//       User.findById(targetUserId).session(session),
-//       User.findById(currentUserId).session(session),
-//     ]);
-
-//     if (!targetUser || !currentUser) {
-//       throw new AppError(httpStatus.NOT_FOUND, 'User not found.');
-//     }
-
-//     // Ensure following is always an array
-//     const following = currentUser.following || [];
-//     const targetedID = new Types.ObjectId(targetUserId);
-//     const isFollowing = following.includes(targetedID);
-
-//     if (isFollowing) {
-//       // Unfollow logic
-//       await Promise.all([
-//         User.updateOne(
-//           { _id: currentUserId },
-//           { $pull: { following: targetUserId } },
-//           { session },
-//         ),
-//         User.updateOne(
-//           { _id: targetUserId },
-//           { $pull: { followers: currentUserId } },
-//           { session },
-//         ),
-//       ]);
-//       await session.commitTransaction();
-//       return { message: 'User unfollowed successfully.' };
-//     } else {
-//       // Follow logic
-//       await Promise.all([
-//         User.updateOne(
-//           { _id: currentUserId },
-//           { $addToSet: { following: targetUserId } },
-//           { session },
-//         ),
-//         User.updateOne(
-//           { _id: targetUserId },
-//           { $addToSet: { followers: currentUserId } },
-//           { session },
-//         ),
-//       ]);
-//       await session.commitTransaction();
-//       return { message: 'User followed successfully.' };
-//     }
-//   } catch (error: any) {
-//     // Roll back the transaction in case of error
-//     await session.abortTransaction();
-//     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
-//   } finally {
-//     // End the session
-//     session.endSession();
-//   }
-// };
-
-// const toggleFollowUser = async (
-//   currentUserId: string,
-//   targetUserId: string,
-// ): Promise<any> => {
-//   if (currentUserId === targetUserId) {
-//     throw new AppError(httpStatus.BAD_REQUEST, 'You cannot follow yourself.');
-//   }
-
-//   // Start a session for the transaction
-//   const session = await startSession();
-//   try {
-//     await session.startTransaction();
-
-//     // Fetch both users within the transaction session
-//     const [targetUser, currentUser] = await Promise.all([
-//       User.findById(targetUserId).session(session),
-//       User.findById(currentUserId).session(session),
-//     ]);
-
-//     if (!targetUser || !currentUser) {
-//       throw new AppError(httpStatus.NOT_FOUND, 'User not found.');
-//     }
-
-//     // Ensure following is always an array
-//     const following = currentUser.following || [];
-//     const targetedID = new Types.ObjectId(targetUserId);
-//     const isFollowing = following.includes(targetedID);
-
-//     if (isFollowing) {
-//       // Unfollow logic
-//       await Promise.all([
-//         User.updateOne(
-//           { _id: currentUserId },
-//           { $pull: { following: targetUserId } },
-//           { session },
-//         ),
-//         User.updateOne(
-//           { _id: targetUserId },
-//           { $pull: { followers: currentUserId } },
-//           { session },
-//         ),
-//       ]);
-//       await session.commitTransaction();
-//       await session.endSession();
-//       return { message: 'User unfollowed successfully.' };
-//     } else {
-//       // Follow logic
-//       await Promise.all([
-//         User.updateOne(
-//           { _id: currentUserId },
-//           { $addToSet: { following: targetUserId } },
-//           { session },
-//         ),
-//         User.updateOne(
-//           { _id: targetUserId },
-//           { $addToSet: { followers: currentUserId } },
-//           { session },
-//         ),
-//       ]);
-//       await session.commitTransaction();
-//       await session.endSession();
-//       return { message: 'User followed successfully.' };
-//     }
-//   } catch (error: any) {
-//     // Log the error for debugging
-//     console.error('Error in toggleFollowUser:', error);
-//     // Roll back the transaction in case of error
-//     await session.abortTransaction();
-//     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
-//   } finally {
-//     // End the session
-//     await session.endSession();
-//   }
-// };
-
 export const UserService = {
   getUserProfile,
   getAllUsers,
   updateUserDataIntoDB,
   toggleFollowUser,
   updateUserProfilePicture,
+  updateUserByAdmin,
 };

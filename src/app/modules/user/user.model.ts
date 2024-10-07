@@ -71,6 +71,11 @@ const userSchema = new Schema<IUser, UserModel>(
       type: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
       default: [],
     },
+    status: {
+      type: String,
+      enum: ['active', 'diactive', 'blocked'],
+      default: 'active',
+    },
   },
   {
     timestamps: true,

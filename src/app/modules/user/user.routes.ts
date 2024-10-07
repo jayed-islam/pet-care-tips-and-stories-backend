@@ -25,6 +25,12 @@ router.put(
 );
 
 router.put(
+  '/admin/update/:id',
+  auth(USER_ROLE.admin),
+  UserController.updateUserByAdmin,
+);
+
+router.put(
   '/me/update/profile-picture/:id',
   auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
   multerUpload.single('file'),

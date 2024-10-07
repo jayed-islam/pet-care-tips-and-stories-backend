@@ -56,6 +56,20 @@ const updateUserData = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserByAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const userData = req.body;
+
+  const user = await UserService.updateUserByAdmin(id, userData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User updated successfully',
+    data: user,
+  });
+});
+
 const updateUserProfilePicture = catchAsync(async (req, res) => {
   const { id } = req.params;
   const file = req.file;
@@ -95,4 +109,5 @@ export const UserController = {
   toggleFollowUser,
   updateUserProfilePicture,
   getSingleUser,
+  updateUserByAdmin,
 };
