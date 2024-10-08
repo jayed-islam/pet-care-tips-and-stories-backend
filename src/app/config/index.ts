@@ -25,4 +25,6 @@ export default {
   PAYMENT_URL: process.env.PAYMENT_URL,
   APP_URL: process.env.APP_URL,
   PAYMENT_VERIFY_URL: process.env.PAYMENT_VERIFY_URL,
+  NODEMAILER_ID: process.env.NODEMAILER_ID,
+  NODEMAILER_PASS: process.env.NODEMAILER_PASS,
 };
