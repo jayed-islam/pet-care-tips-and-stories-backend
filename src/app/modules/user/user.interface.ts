@@ -6,6 +6,7 @@ export interface IUser {
   _id?: string;
   name: string;
   email: string;
+  username: string;
   password: string;
   phone?: string;
   address?: string;
@@ -16,6 +17,10 @@ export interface IUser {
   userType: 'basic' | 'premium';
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
+  sentFriendRequests: Types.ObjectId[];
+  receivedFriendRequests: Types.ObjectId[];
+  friends: Types.ObjectId[];
+  pages: Types.ObjectId[];
   purchasedPosts: Types.ObjectId[];
   isDeleted: boolean;
   isVerified: boolean;

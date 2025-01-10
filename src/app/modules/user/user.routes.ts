@@ -40,9 +40,21 @@ router.put(
 router.get('/get-list', auth(USER_ROLE.admin), UserController.getAllUsers);
 
 router.post(
+  '/get-user-list',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  UserController.getUserListForUser,
+);
+
+router.post(
   '/toggle-follow',
   auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
   UserController.toggleFollowUser,
+);
+
+router.post(
+  '/toggle-request',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  UserController.handleFriendRequest,
 );
 
 export const UserRoutes = router;

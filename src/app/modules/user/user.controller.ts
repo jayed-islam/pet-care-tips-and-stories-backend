@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import { UserService } from './user.service'; // Assuming UserService is correctly implemented
+import { UserService } from './user.service';
 
 const getCurrentUser = catchAsync(async (req, res) => {
   const userId = req.user._id;
@@ -40,11 +40,26 @@ const getAllUsers = catchAsync(async (req, res) => {
   });
 });
 
+const getUserListForUser = catchAsync(async (req, res) => {
+  const { search, userType, page = 1, limit = 11 } = req.body;
+  const results = await UserService.getUserListForUser(
+    search,
+    userType,
+    Number(page),
+    Number(limit),
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Users retrieved successfully',
+    data: results,
+  });
+});
+
 const updateUserData = catchAsync(async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
-
-  console.log('data', userData);
 
   const user = await UserService.updateUserDataIntoDB(id, userData, req.user);
 
@@ -84,7 +99,6 @@ const updateUserProfilePicture = catchAsync(async (req, res) => {
   });
 });
 
-// Toggle follow/unfollow user controller
 const toggleFollowUser = catchAsync(async (req, res) => {
   const { targetUserId } = req.body;
   const currentUserId = req.user._id;
@@ -102,6 +116,24 @@ const toggleFollowUser = catchAsync(async (req, res) => {
   });
 });
 
+const handleFriendRequest = catchAsync(async (req, res) => {
+  const { targetUserId, actionType } = req.body;
+  const currentUserId = req.user._id;
+
+  const result = await UserService.handleFriendRequest(
+    currentUserId,
+    targetUserId,
+    actionType,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
+    data: result.data,
+  });
+});
+
 export const UserController = {
   getCurrentUser,
   getAllUsers,
@@ -110,4 +142,6 @@ export const UserController = {
   updateUserProfilePicture,
   getSingleUser,
   updateUserByAdmin,
+  handleFriendRequest,
+  getUserListForUser,
 };

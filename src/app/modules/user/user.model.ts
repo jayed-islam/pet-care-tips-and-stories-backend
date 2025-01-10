@@ -13,6 +13,12 @@ const userSchema = new Schema<IUser, UserModel>(
       lowercase: true,
       trim: true,
     },
+    username: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,
@@ -48,6 +54,34 @@ const userSchema = new Schema<IUser, UserModel>(
       type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
+    sentFriendRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+    ],
+    receivedFriendRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+    ],
+    friends: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+    ],
+    pages: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Page',
+        required: true,
+      },
+    ],
     profilePicture: {
       type: String,
     },

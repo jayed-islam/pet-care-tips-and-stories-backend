@@ -97,6 +97,51 @@ const getAllUsers = async () => {
   return User.find().select('-password');
 };
 
+const getUserListForUser = async (
+  search: string,
+  userType: string,
+  page: number,
+  limit: number,
+) => {
+  try {
+    const filter: any = { status: 'active' };
+
+    // Add search filter for name, email, or phone
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Add userType filter if provided
+    if (userType) {
+      filter.userType = userType;
+    }
+
+    // Count total matching users
+    const totalCount = await User.countDocuments(filter);
+
+    // Fetch filtered users with pagination
+    const users = await User.find(filter)
+      .select('-password')
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const pagination = {
+      itemsPerPage: limit,
+      pageIndex: page,
+      totalPages: Math.ceil(totalCount / limit),
+      totalItems: totalCount,
+    };
+
+    return { users, pagination };
+  } catch (error) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found.');
+  }
+};
+
 const getUserProfile = async (userId: string): Promise<any> => {
   const user = await User.findById(userId)
     .populate({
@@ -106,6 +151,21 @@ const getUserProfile = async (userId: string): Promise<any> => {
     .populate({
       path: 'following',
       select: '-password',
+    })
+    .populate({
+      path: 'sentFriendRequests',
+      select: '-password',
+    })
+    .populate({
+      path: 'receivedFriendRequests',
+      select: '-password',
+    })
+    .populate({
+      path: 'friends',
+      select: '-password',
+    })
+    .populate({
+      path: 'pages',
     })
     .populate({
       path: 'purchasedPosts',
@@ -177,6 +237,116 @@ const toggleFollowUser = async (
     return { message: 'User followed successfully.' };
   }
 };
+
+const handleFriendRequest = async (
+  userId: Types.ObjectId,
+  targetUserId: Types.ObjectId,
+  action: 'send' | 'cancel' | 'accept',
+) => {
+  const user = await User.findById(userId);
+  const targetUser = await User.findById(targetUserId);
+
+  if (!user || !targetUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User or Target User not found');
+  }
+
+  switch (action) {
+    case 'send':
+      // Check if the user has already sent a request or if they are already friends
+      if (user.sentFriendRequests.includes(targetUserId)) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          'Friend request already sent',
+        );
+      }
+      if (user.friends.includes(targetUserId)) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Already friends');
+      }
+
+      // Add to sent friend requests
+      user.sentFriendRequests.push(targetUserId);
+      targetUser.receivedFriendRequests.push(userId);
+      await user.save();
+      await targetUser.save();
+
+      return { message: 'Friend request sent successfully', data: user };
+
+    case 'cancel':
+      // Check if the user has sent a request
+      if (!user.sentFriendRequests.includes(targetUserId)) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          'No friend request to cancel',
+        );
+      }
+
+      // Remove from sent friend requests and target user received requests
+      user.sentFriendRequests = user.sentFriendRequests.filter(
+        (request) => !request.equals(targetUserId),
+      );
+      targetUser.receivedFriendRequests =
+        targetUser.receivedFriendRequests.filter(
+          (request) => !request.equals(userId),
+        );
+      await user.save();
+      await targetUser.save();
+
+      return { message: 'Friend request canceled', data: user };
+
+    case 'accept':
+      // Check if the user has received a friend request
+      if (!user.receivedFriendRequests.includes(targetUserId)) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          'No friend request to accept',
+        );
+      }
+
+      // Add both users as friends
+      user.friends.push(targetUserId);
+      targetUser.friends.push(userId);
+
+      // Remove the friend request from both users
+      user.receivedFriendRequests = user.receivedFriendRequests.filter(
+        (request) => !request.equals(targetUserId),
+      );
+      targetUser.sentFriendRequests = targetUser.sentFriendRequests.filter(
+        (request) => !request.equals(userId),
+      );
+
+      await user.save();
+      await targetUser.save();
+
+      return { message: 'Friend request accepted successfully', data: user };
+
+    default:
+      throw new AppError(httpStatus.BAD_REQUEST, 'Invalid action');
+  }
+};
+
+const removeFriend = async (
+  userId: Types.ObjectId,
+  targetUserId: Types.ObjectId,
+) => {
+  const user = await User.findById(userId);
+  const targetUser = await User.findById(targetUserId);
+
+  if (!user || !targetUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User or Target User not found');
+  }
+
+  // Remove the target user from both users' friends lists
+  user.friends = user.friends.filter((friend) => !friend.equals(targetUserId));
+  targetUser.friends = targetUser.friends.filter(
+    (friend) => !friend.equals(userId),
+  );
+
+  await user.save();
+  await targetUser.save();
+
+  return { message: 'Friend removed successfully' };
+};
+
 export const UserService = {
   getUserProfile,
   getAllUsers,
@@ -184,4 +354,7 @@ export const UserService = {
   toggleFollowUser,
   updateUserProfilePicture,
   updateUserByAdmin,
+  handleFriendRequest,
+  removeFriend,
+  getUserListForUser,
 };
