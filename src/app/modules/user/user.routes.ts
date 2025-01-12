@@ -63,4 +63,6 @@ router.post(
   UserController.removeFriend,
 );
 
+router.get('/get-summary', auth(USER_ROLE.admin), UserController.getSummary);
+
 export const UserRoutes = router;

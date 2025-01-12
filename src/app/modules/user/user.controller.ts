@@ -149,6 +149,17 @@ const removeFriend = catchAsync(async (req, res) => {
   });
 });
 
+const getSummary = catchAsync(async (req, res) => {
+  const result = await UserService.getSummary();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Summary retrived',
+    data: result,
+  });
+});
+
 export const UserController = {
   getCurrentUser,
   getAllUsers,
@@ -160,4 +171,5 @@ export const UserController = {
   handleFriendRequest,
   getUserListForUser,
   removeFriend,
+  getSummary,
 };

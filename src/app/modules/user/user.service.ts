@@ -4,7 +4,11 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { IUser } from './user.interface';
 import { User } from './user.model';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+import { Payment } from '../payment/payment.model';
+import { Page } from '../page/page.model';
+import { Post } from '../posts/post.model';
+import { Category } from '../category/category.model';
 
 const updateUserDataIntoDB = async (
   userId: string,
@@ -353,6 +357,134 @@ const removeFriend = async (userId: string, targetUserId: string) => {
 
   return { message: 'Friend removed successfully', data: null };
 };
+const getSummary = async () => {
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const today = new Date();
+    const lastWeekStart = new Date(today);
+    lastWeekStart.setDate(today.getDate() - 7);
+
+    const users = await User.find({
+      createdAt: { $gte: lastWeekStart, $lt: today },
+    })
+      .sort({ createdAt: -1 })
+      .limit(15)
+      .session(session);
+
+    // Revenue in the last week (Payment Revenue)
+    const lastWeekRevenue = await Payment.aggregate([
+      {
+        $match: {
+          status: 'COMPLETED',
+          createdAt: { $gte: lastWeekStart, $lt: today },
+        },
+      },
+      {
+        $group: { _id: null, total: { $sum: '$amount' } }, // assuming 'amount' is the payment field
+      },
+    ]).session(session);
+
+    // User count
+    const usersCount = await User.countDocuments().session(session);
+
+    // Pages count (pages are assumed to be a model like 'Page')
+    const pagesCount = await Page.countDocuments().session(session);
+
+    const postCount = await Post.countDocuments().session(session);
+
+    // Category distribution (for pages or posts)
+    const categoryDistributionRaw = await Post.aggregate([
+      // assuming posts are categorized
+      {
+        $match: {
+          createdAt: { $gte: lastWeekStart, $lt: today }, // filter for the last week if required
+        },
+      },
+      {
+        $group: {
+          _id: '$category', // assuming 'category' is a field in your Post model
+          count: { $sum: 1 },
+        },
+      },
+    ]).session(session);
+
+    const categories = await Category.find({
+      _id: { $in: categoryDistributionRaw.map((item: any) => item._id) },
+    }).session(session);
+
+    const categoryDistribution = categoryDistributionRaw.map((item: any) => {
+      const category = categories.find(
+        (cat: any) => cat._id.toString() === item._id.toString(),
+      );
+      return {
+        category: category ? category.name : 'Unknown',
+        count: item.count,
+      };
+    });
+
+    // Weekly revenue data
+    const revenueOverviewRaw = await Payment.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: '$createdAt' },
+          totalRevenue: { $sum: '$amount' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]).session(session);
+
+    const revenueOverview = Array.from({ length: 7 }, (_, i) => {
+      const day = i + 1; // Day of week (1=Sunday, 7=Saturday)
+      const data = revenueOverviewRaw.find((item: any) => item._id === day);
+      return {
+        day,
+        totalRevenue: data ? data.totalRevenue : 0,
+      };
+    });
+
+    // Prepare summary and chart data
+    const summary = {
+      revenue: lastWeekRevenue[0]?.total || 0,
+      users: usersCount,
+      pages: pagesCount,
+      posts: postCount,
+    };
+
+    const chartData = {
+      revenueOverview,
+      categoryDistribution,
+    };
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      summary,
+      chartData,
+      users,
+    };
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error(error);
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to retrieve summary data',
+    );
+  }
+};
 
 export const UserService = {
   getUserProfile,
@@ -364,4 +496,5 @@ export const UserService = {
   handleFriendRequest,
   removeFriend,
   getUserListForUser,
+  getSummary,
 };

@@ -80,6 +80,90 @@ const loginUserFromDB = async ({ email, password }: TAuthUser) => {
   };
 };
 
+const handleGoogleAuthentication = async ({
+  email,
+  name,
+  picture,
+}: {
+  email: string;
+  name: string;
+  picture?: string;
+}) => {
+  // Check if the user exists in the database
+  const existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    // Log in the user
+    if (existingUser.isDeleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'User is deleted');
+    }
+
+    if (existingUser.status === 'blocked') {
+      throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+    }
+
+    // Create tokens and send them to the client
+    const jwtPayload = {
+      _id: existingUser._id,
+      email: existingUser.email,
+      role: existingUser.role,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expires_in as string,
+    );
+
+    const refreshToken = createToken(
+      jwtPayload,
+      config.jwt_refresh_secret as string,
+      config.jwt_refresh_expires_in as string,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+      user: existingUser,
+    };
+  } else {
+    // Create a new user
+    const newUser = new User({
+      email,
+      name,
+      username: email.split('@')[0],
+      ...(picture && { profilePicture: picture }),
+    });
+
+    const result = await newUser.save();
+
+    // Create tokens for the new user
+    const jwtPayload = {
+      _id: result._id,
+      email: result.email,
+      role: result.role,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expires_in as string,
+    );
+
+    const refreshToken = createToken(
+      jwtPayload,
+      config.jwt_refresh_secret as string,
+      config.jwt_refresh_expires_in as string,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+      user: result,
+    };
+  }
+};
+
 const changePassword = async (
   userData: JwtPayload,
   payload: { oldPassword: string; newPassword: string },
@@ -285,4 +369,5 @@ export const AuthServices = {
   refreshToken,
   resetPassword,
   forgetPassword,
+  handleGoogleAuthentication,
 };

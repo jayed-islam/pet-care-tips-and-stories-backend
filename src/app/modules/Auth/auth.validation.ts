@@ -20,6 +20,19 @@ const registerUserValidationSchema = z.object({
   }),
 });
 
+const googleAuthSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email({ message: 'Invalid email address' }),
+    name: z.string().optional(),
+    username: z.string().optional(),
+    picture: z.string().optional(),
+  }),
+});
+
 const changePasswordValidationSchema = z.object({
   body: z.object({
     oldPassword: z.string({
@@ -65,4 +78,5 @@ export const AuthValidation = {
   forgetPasswordValidationSchema,
   resetPasswordValidationSchema,
   registerUserValidationSchema,
+  googleAuthSchema,
 };

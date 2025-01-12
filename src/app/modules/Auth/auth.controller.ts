@@ -36,6 +36,27 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
+const handleGoogleAuthentication = catchAsync(async (req, res) => {
+  const result = await AuthServices.handleGoogleAuthentication(req.body);
+
+  const { refreshToken, accessToken, user } = result;
+
+  res.cookie('refreshToken', refreshToken, {
+    secure: config.NODE_ENV === 'production',
+    httpOnly: true,
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User logged in succesfully!',
+    data: {
+      accessToken,
+      user,
+    },
+  });
+});
+
 const changePassword = catchAsync(async (req, res) => {
   const { ...passwordData } = req.body;
 
@@ -90,4 +111,5 @@ export const AuthControllers = {
   forgetPassword,
   resetPassword,
   registerUser,
+  handleGoogleAuthentication,
 };
