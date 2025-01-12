@@ -57,4 +57,10 @@ router.post(
   UserController.handleFriendRequest,
 );
 
+router.post(
+  '/remove-friend/:id',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.user),
+  UserController.removeFriend,
+);
+
 export const UserRoutes = router;

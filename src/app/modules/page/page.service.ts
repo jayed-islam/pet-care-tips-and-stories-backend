@@ -109,9 +109,8 @@ const createPage = async (
 const getAllPages = async (): Promise<IPage[]> => {
   try {
     const pages = await Page.find({ isDeleted: false })
-      .populate('posts')
-      .populate('followers')
-      .populate('createdBy');
+      .populate('createdBy')
+      .populate('followers');
     return pages;
   } catch (error) {
     throw new AppError(httpStatus.CONFLICT, 'Server error');
@@ -121,7 +120,10 @@ const getAllPages = async (): Promise<IPage[]> => {
 // Get a single page by ID
 const getPageById = async (pageId: string): Promise<IPage | null> => {
   const page = await Page.findOne({ _id: pageId, isDeleted: false })
-    .populate('posts')
+    .populate({
+      path: 'posts',
+      populate: [{ path: 'author', select: '-password' }],
+    })
     .populate('followers')
     .populate('createdBy');
 

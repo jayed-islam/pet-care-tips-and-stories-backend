@@ -47,6 +47,7 @@ const getUserListForUser = catchAsync(async (req, res) => {
     userType,
     Number(page),
     Number(limit),
+    req.user._id,
   );
 
   sendResponse(res, {
@@ -134,6 +135,20 @@ const handleFriendRequest = catchAsync(async (req, res) => {
   });
 });
 
+const removeFriend = catchAsync(async (req, res) => {
+  const targetUserId = req.params.id;
+  const currentUserId = req.user._id;
+
+  const result = await UserService.removeFriend(currentUserId, targetUserId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
+    data: null,
+  });
+});
+
 export const UserController = {
   getCurrentUser,
   getAllUsers,
@@ -144,4 +159,5 @@ export const UserController = {
   updateUserByAdmin,
   handleFriendRequest,
   getUserListForUser,
+  removeFriend,
 };

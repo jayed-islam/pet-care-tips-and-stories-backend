@@ -8,6 +8,7 @@ const createPostSchema = z.object({
       .nonempty({ message: 'Author is required' }),
     content: z.string({ required_error: 'Content is required' }),
     category: z.string({ required_error: 'Category is required' }),
+    pageId: z.string().optional(),
   }),
 });
 

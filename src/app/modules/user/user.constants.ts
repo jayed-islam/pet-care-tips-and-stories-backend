@@ -1,6 +1,8 @@
 export type TAuthUser = {
   email: string;
   password: string;
+  username: string;
+  name: string;
 };
 
 export type TAuthAdmin = {

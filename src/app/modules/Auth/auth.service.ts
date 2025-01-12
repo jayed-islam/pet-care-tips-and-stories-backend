@@ -9,13 +9,18 @@ import { User } from '../user/user.model';
 import bcrypt from 'bcrypt';
 import { sendEmail } from '../../utils/sendEmail';
 
-const registerUserIntoDB = async ({ email, password }: TAuthUser) => {
+const registerUserIntoDB = async ({
+  email,
+  password,
+  username,
+  name,
+}: TAuthUser) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new AppError(httpStatus.BAD_REQUEST, 'User already exists');
   }
 
-  const newUser = new User({ email, password });
+  const newUser = new User({ email, password, username, name });
   const result = await newUser.save();
 
   return result;

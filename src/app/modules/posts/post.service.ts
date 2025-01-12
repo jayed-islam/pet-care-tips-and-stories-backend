@@ -5,29 +5,93 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { IPost } from './post.interface';
 import { Post } from './post.model';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import { SortOrder } from 'mongoose';
+import { Page } from '../page/page.model';
 
-// Create a new post
-const createPost = async (postData: IPost, author: string, files: any[]) => {
+// // Create a new post
+// const createPost = async (
+//   postData: IPost,
+//   author: string,
+//   files: any[],
+//   pageId?: string,
+// ) => {
+//   try {
+//     // Check if there are files and map the 'path' values to the imageUrls array
+//     let imageUrls: string[] | undefined = undefined;
+
+//     if (files && files.length > 0) {
+//       imageUrls = files.map((file) => file.path);
+//     }
+
+//     // Create the post with the imageUrls field only if it exists and is not empty
+//     const postDataWithImages = imageUrls
+//       ? { ...postData, author, imageUrls }
+//       : { ...postData, author };
+
+//     const post = await Post.create(postDataWithImages);
+
+//     return post;
+//   } catch (error) {
+//     console.error(error);
+//     throw new AppError(httpStatus.CONFLICT, 'Server error');
+//   }
+// };
+
+const createPost = async (
+  postData: IPost,
+  author: string,
+  files: any[],
+  pageId?: string,
+) => {
+  const session = await mongoose.startSession();
+
   try {
+    session.startTransaction();
+
     // Check if there are files and map the 'path' values to the imageUrls array
     let imageUrls: string[] | undefined = undefined;
-
     if (files && files.length > 0) {
       imageUrls = files.map((file) => file.path);
     }
 
-    // Create the post with the imageUrls field only if it exists and is not empty
+    // Prepare the post data
     const postDataWithImages = imageUrls
       ? { ...postData, author, imageUrls }
       : { ...postData, author };
 
-    const post = await Post.create(postDataWithImages);
+    // Create the post
+    const post = await Post.create([postDataWithImages], { session });
 
-    return post;
+    // If pageId is provided, check if the author is the creator of the page
+    if (pageId) {
+      const page = await Page.findById(pageId).session(session);
+
+      if (!page) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Page not found');
+      }
+
+      if (page.createdBy.toString() !== author) {
+        throw new AppError(
+          httpStatus.UNAUTHORIZED,
+          'You are not authorized to create a post for this page',
+        );
+      }
+
+      // Add the post ID to the page's posts array
+      page.posts.push(post[0]._id);
+      await page.save({ session });
+    }
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return post[0];
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     console.error(error);
     throw new AppError(httpStatus.CONFLICT, 'Server error');
   }
@@ -112,6 +176,7 @@ const getAllPosts = async (
     sortBy?: 'upvotes' | 'newest';
     page?: number;
     limit?: number;
+    isPremium?: boolean;
   } = {},
 ) => {
   const {
@@ -120,9 +185,14 @@ const getAllPosts = async (
     sortBy = 'upvotes',
     page = 1,
     limit = 10,
+    isPremium,
   } = filterOptions;
 
   const query: any = { isDeleted: false, isPublished: true };
+
+  if (isPremium) {
+    query.isPremium = isPremium;
+  }
 
   // Apply filtering by category if provided
   if (category) {

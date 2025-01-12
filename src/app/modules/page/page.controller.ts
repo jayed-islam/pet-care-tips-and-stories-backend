@@ -118,7 +118,7 @@ const toggleLike = catchAsync(async (req: Request, res: Response) => {
 // Toggle follow for a page (follow or unfollow)
 const toggleFollow = catchAsync(async (req: Request, res: Response) => {
   const pageId = req.params.id;
-  const userId = req.user.id; // assuming user is logged in and `id` is available
+  const userId = req.user._id;
 
   const updatedPage = await PageServices.toggleFollow(pageId, userId);
 

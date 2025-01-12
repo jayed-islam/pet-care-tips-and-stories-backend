@@ -9,11 +9,11 @@ import { IPost } from './post.interface';
 
 // Create a new post
 const createPost = catchAsync(async (req: Request, res: Response) => {
-  const postData: IPost = req.body;
+  const { pageId, ...postData } = req.body;
   const author = req.user._id;
   const files = req.files as any[];
 
-  const post = await PostServices.createPost(postData, author, files);
+  const post = await PostServices.createPost(postData, author, files, pageId);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

@@ -15,6 +15,8 @@ const registerUserValidationSchema = z.object({
       })
       .email({ message: 'Invalid email address' }),
     password: z.string({ required_error: 'Password is required' }),
+    name: z.string({ required_error: 'Name is required' }),
+    username: z.string().optional(),
   }),
 });
 

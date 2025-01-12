@@ -21,7 +21,11 @@ router.post(
 router.get('/', PageControllers.getAllPages);
 router.get('/:id', PageControllers.getPageById);
 
-router.put('/:id', auth(USER_ROLE.admin), PageControllers.updatePage);
+router.put(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  PageControllers.updatePage,
+);
 
 router.post(
   '/:id/toggle-like',
@@ -32,7 +36,7 @@ router.post(
 // Toggle follow on a page
 router.post(
   '/:id/toggle-follow',
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user, USER_ROLE.admin),
   PageControllers.toggleFollow,
 );
 

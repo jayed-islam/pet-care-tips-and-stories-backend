@@ -102,9 +102,14 @@ const getUserListForUser = async (
   userType: string,
   page: number,
   limit: number,
+  userId: string,
 ) => {
   try {
     const filter: any = { status: 'active' };
+
+    if (userId) {
+      filter._id = { $ne: userId };
+    }
 
     // Add search filter for name, email, or phone
     if (search) {
@@ -126,6 +131,7 @@ const getUserListForUser = async (
     // Fetch filtered users with pagination
     const users = await User.find(filter)
       .select('-password')
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -166,6 +172,10 @@ const getUserProfile = async (userId: string): Promise<any> => {
     })
     .populate({
       path: 'pages',
+      populate: [
+        { path: 'followers', select: '-password' },
+        { path: 'createdBy' },
+      ],
     })
     .populate({
       path: 'purchasedPosts',
@@ -324,10 +334,7 @@ const handleFriendRequest = async (
   }
 };
 
-const removeFriend = async (
-  userId: Types.ObjectId,
-  targetUserId: Types.ObjectId,
-) => {
+const removeFriend = async (userId: string, targetUserId: string) => {
   const user = await User.findById(userId);
   const targetUser = await User.findById(targetUserId);
 
@@ -344,7 +351,7 @@ const removeFriend = async (
   await user.save();
   await targetUser.save();
 
-  return { message: 'Friend removed successfully' };
+  return { message: 'Friend removed successfully', data: null };
 };
 
 export const UserService = {
